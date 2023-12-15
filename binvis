@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import os.path, math, string, sys
-import scurve
+# I added this ---
+sys.path.append('..') 
+# ----
+import scurve 
 from scurve import progress, utils, draw
-import Image, ImageDraw
+from PIL import Image, ImageDraw
 
 
 class _Color:
@@ -24,12 +27,21 @@ class _Color:
 
 class ColorGradient(_Color):
     def getPoint(self, x):
-        c = ord(self.data[x])/255.0
-        return [
-            int(255*c),
-            int(255*c),
-            int(255*c)
-        ]
+        if isinstance(self.data, bytes):
+            if x >= 0 and x < len(self.data):
+                # Get the byte at position x and calculate the color value.
+                c = self.data[x] / 255.0
+                return [
+                    int(255 * c),
+                    int(255 * c),
+                    int(255 * c)
+                ]
+            else:
+                # Handle the case when x is out of range.
+                raise ValueError("Index x is out of range.")
+        else:
+            # Handle other data types as needed.
+            raise ValueError("Unsupported data type for self.data")
 
 
 class ColorHilbert(_Color):
@@ -42,10 +54,15 @@ class ColorHilbert(_Color):
         c = self.symbol_map[self.data[x]]
         return self.csource.point(int(c*self.step))
 
-
+# Modified code to match our need
 class ColorClass(_Color):
     def getPoint(self, x):
-        c = ord(self.data[x])
+        # douple check if the data is already an integer.
+        if isinstance(self.data[x], int):
+            c = self.data[x]
+        else:
+            c = ord(self.data[x])
+
         if c == 0:
             return [0, 0, 0]
         elif c == 255:
@@ -53,6 +70,7 @@ class ColorClass(_Color):
         elif chr(c) in string.printable:
             return [55, 126, 184]
         return [228, 26, 28]
+
 
 
 class ColorEntropy(_Color):
@@ -162,8 +180,10 @@ def main():
     options, args = parser.parse_args()
     if len(args) not in [1, 2]:
         parser.error("Please specify input and output file.")
+    # I fixed this line
+    with open(args[0], 'rb') as file:
+        d = file.read()
 
-    d = file(args[0]).read()
     if len(args) == 2:
         dst = args[1]
     else:
@@ -199,7 +219,7 @@ def main():
 
 
     if options.progress:
-        print dst
+        print(dst)
 
     if options.quiet or options.progress:
         prog = progress.Dummy()

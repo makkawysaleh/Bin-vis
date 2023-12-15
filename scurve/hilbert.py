@@ -1,4 +1,5 @@
-import utils, math
+from . import utils
+import math
 
 
 def transform(entry, direction, width, x):

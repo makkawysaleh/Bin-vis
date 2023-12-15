@@ -1,5 +1,5 @@
 import math
-import utils
+from . import utils
 
 class GrayCurve:
     def __init__(self, dimension, bits):
@@ -50,6 +50,7 @@ class GrayCurve:
         p = [0]*self.dimension
         iwidth = self.bits * self.dimension
         for i in range(iwidth):
-            b = utils.bitrange(idx, iwidth, i, i+1) << (iwidth-i-1)/self.dimension
+            b = utils.bitrange(idx, iwidth, i, i+1) << int((iwidth-i-1)/self.dimension)
+
             p[i%self.dimension] |= b
         return p

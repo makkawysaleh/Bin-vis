@@ -13,7 +13,7 @@ def main():
 
     width = int(args[0])
     for i in range(2**width):
-        print str(utils.bits(utils.graycode(i), width))[1:-1]
+        print(str(utils.bits(utils.graycode(i), width))[1:-1])
 
 
 main()
