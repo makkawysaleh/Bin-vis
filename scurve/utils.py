@@ -104,7 +104,7 @@ def bitrange(x, width, start, end):
 
 def entropy(data, blocksize, offset, symbols=256):
     """
-        Returns local byte entropy for a location in a file.
+        Returns local  entropy for a location in a file.
     """
     if len(data) < blocksize:
         raise ValueError("Data length must be larger than block size.")
