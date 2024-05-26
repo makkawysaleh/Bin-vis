@@ -68,7 +68,27 @@ class ColorClass(_Color):
         elif chr(c) in string.printable:  # Blue
             return [55, 126, 184]
         return [228, 26, 28]  # Red not printable
+# ------------------- New code for N-gram of 2 bytes --------------------------------
+class EntropyNgram(_Color):
+    def getPoint(self, x):
+        e = utils.entropy(self.data, 32, x, len(self.symbol_map))
 
+        def curve(v):
+            f = (4 * v - 4 * v**2) ** 4
+            f = max(f, 0)
+            return f
+
+        r = curve(e - 0.5) if e > 0.5 else 0
+        b = e**2
+
+        # Compute n-gram (window of two bytes)
+        if x < len(self.data) - 1:
+            ngram_value = (self.data[x] << 8) + self.data[x + 1]
+            g = ngram_value / 65535.0  # Normalizing to fit in the range [0, 1]
+        else:
+            g = 0  # If we're at the last byte, we can't form a full n-gram
+
+        return [int(255 * r), int(255 * g), int(255 * b)]
 
 class ColorEntropy(_Color):
     def getPoint(self, x):
@@ -171,7 +191,7 @@ def main():
         type="choice",
         dest="color",
         default="class",
-        choices=["class", "hilbert", "entropy", "gradient", "saleh"],
+        choices=["class", "hilbert", "entropy", "gradient", "saleh","ngram2"],
         help="Color map.",
     )
     parser.add_option(
@@ -259,6 +279,8 @@ def main():
         csource = ColorGradient(d, block)
     elif options.color == "saleh":
         csource = SalehEntropy(d, block)
+    elif options.color == 'ngram2':
+        csource = EntropyNgram(d, block)
     else:
         csource = ColorEntropy(d, block)
 
